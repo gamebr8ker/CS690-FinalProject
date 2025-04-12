@@ -2,8 +2,12 @@
 
 class Program
 {
+
     static void Main(string[] args)
     {
-        Console.WriteLine("Hello, World23!");
+        Console.WriteLine(Environment.CurrentDirectory);
+
+        DataManager dataManager = new DataManager();
+ 
     }
 }
