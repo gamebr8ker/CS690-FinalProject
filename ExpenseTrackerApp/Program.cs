@@ -7,7 +7,10 @@ class Program
     {
         Console.WriteLine(Environment.CurrentDirectory);
 
-        DataManager dataManager = new DataManager();
+        //DataManager dataManager = new DataManager();
+
+        ConsoleUI theUI = new ConsoleUI();
+        theUI.Show();
  
     }
 }
