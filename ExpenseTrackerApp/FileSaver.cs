@@ -2,6 +2,8 @@ namespace ExpenseTrackerApp;
 
 using System.IO;
 
+
+
 public class FileSaver {
 
     string fileName;
@@ -15,5 +17,32 @@ public class FileSaver {
             File.Create(this.fileName).Close();
         }
     }
+
+
+
+    public void AppendExpenseData(Expense data) {
+        File.AppendAllText(
+            this.fileName,
+            data.ID + ", " + data.Description + ", " +
+            data.Date + ", " + data.Amount + ", " + 
+            data.ExpenseCategoryID +
+            Environment.NewLine
+        );
+    }
+
+
+
+    public void AppendCategoryData(Category data) {
+        File.AppendAllText(
+            this.fileName,
+            data.ID + ", " + data.Name + ", " +
+            data.Enabled + ", " + data.Budget_Amount +
+            Environment.NewLine
+        );
+    }
+
+
+
+    //
 }
 
