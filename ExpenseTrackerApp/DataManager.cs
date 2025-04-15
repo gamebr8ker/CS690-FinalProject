@@ -116,6 +116,37 @@ public class DataManager {
 
 
 
+    public void EditExpenseData(
+        List<Expense> expensesList,
+        Expense existingData, string editParam,
+        string newDescr = "", DateTime newDateTime = default(DateTime),
+        float newAmount = (float)0.0, 
+        int newCategoryID = 1) {
+
+            // Get index location of item being modified
+            int index = expensesList.FindIndex(x => x == existingData);
+
+            // Update based on user-selected parameter
+            if( editParam == "Description" ) {
+                expensesList[index].Description = newDescr;
+            } 
+            else if( editParam == "Date" ) {
+                expensesList[index].Date = newDateTime;
+            } 
+            else if( editParam == "Amount" ) {
+                expensesList[index].Amount = newAmount;
+            }
+            else if( editParam == "Expense Category" ) {
+                expensesList[index].ExpenseCategoryID = newCategoryID;
+            }
+
+            Console.WriteLine(expensesList[index] + Environment.NewLine);
+
+
+            // Update expenses.txt file
+            SynchronizeExpenses();
+        }
+
 
 
     /// Category Helper Functions
@@ -124,6 +155,7 @@ public class DataManager {
         this.Categories.Add(data);
         this.fileSaverCategories.AppendCategoryData(data);
     }
+
 
 
     /// Keeps categories.txt file in sync with current state of Categories list
@@ -136,6 +168,7 @@ public class DataManager {
     }
 
 
+
     /// For deleting categories from Categories list.
     /// Runs the synchronizor method to update related file as well.
     public void RemoveCategoryData(Category data) {
@@ -143,6 +176,7 @@ public class DataManager {
 
         SynchronizeCategories();
     }
+
 
 
     public void EditCategoryData(
@@ -158,17 +192,16 @@ public class DataManager {
         // Update based on user-selected parameter
         if( editParam == "Name" ) {
             categoriesList[index].Name = newName;
-            Console.WriteLine(categoriesList[index] + Environment.NewLine);
         }
         else if( editParam == "Budget Amount" ) {
             categoriesList[index].Budget_Amount = newBudgetAmount;
-            Console.WriteLine(categoriesList[index] + Environment.NewLine);
         }
         else if( editParam == "Enabled" ) {
             categoriesList[index].Enabled = newEnabled;
-            Console.WriteLine(categoriesList[index] + Environment.NewLine);
         }
         
+
+        Console.WriteLine(categoriesList[index] + Environment.NewLine);
 
         // Update categories.txt file        
         SynchronizeCategories();

@@ -20,7 +20,11 @@ public class ConsoleUI {
 
     public void Show() {
 
-        var mode = AnsiConsole.Prompt(
+        string mode;
+
+        do {
+
+        mode = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
             .Title("Select a task")
             .AddChoices( new[] {
@@ -37,7 +41,7 @@ public class ConsoleUI {
         
 
 
-
+        /// Expenses Sub-Menu
         if( mode == "Create / Edit Expenses" ) {
             Console.WriteLine("Selected Expenses");
 
@@ -58,9 +62,16 @@ public class ConsoleUI {
 
 
             do {
+                // Print the Expenses
                 foreach(var lineitem in dataManager.Expenses) {
                     Console.WriteLine(lineitem);
                 }
+
+                // Print a break before Prompt
+                Console.WriteLine("--------------------" + 
+                    Environment.NewLine
+                );
+
 
                 expenseMode = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
@@ -142,13 +153,161 @@ public class ConsoleUI {
 
 
                 else if( expenseMode == "Edit") {
-                    Console.WriteLine("This feature is slated for V2.0.0");
+                    //Console.WriteLine("This feature is slated for V2.0.0");
+
+                    // List existing expenses
+                    foreach( var lineitem in dataManager.Expenses ) {
+                        Console.WriteLine(lineitem);
+                    }
+
+                    Console.WriteLine(
+                        "--------------------" + 
+                        Environment.NewLine
+                    );
+
+
+                    // Prompt user to select a record
+                    Expense selectedExpense = AnsiConsole.Prompt(
+                        new SelectionPrompt<Expense>()
+                        .Title("Select an Expense to modify: ")
+                        .AddChoices(dataManager.Expenses)
+                    );
+
+
+
+                    string selectedModification;
+
+                    do {
+                        selectedModification = AnsiConsole.Prompt(
+                            new SelectionPrompt<string>()
+                            .Title("Which would you like to modify?")
+                            .AddChoices( new[] {
+                                "Description",
+                                "Date",
+                                "Amount",
+                                "Expense Category",
+                                "Delete",
+                                "Back"
+                            }
+                            )
+                        );
+
+
+
+                        // Set the updated value and update the record
+                        if( selectedModification == "Delete" ) {
+                            dataManager.RemoveExpenseData(selectedExpense);
+                        
+                        
+                        }
+                        else if( selectedModification == "Description" ) {
+                            
+                            var newExpenseDescr = AnsiConsole.Prompt(
+                                new TextPrompt<string>("Enter new Expense Description: ")
+                            );
+
+                            dataManager.EditExpenseData(
+                                expensesList: dataManager.Expenses,
+                                existingData: selectedExpense,
+                                editParam: selectedModification,
+                                newDescr: newExpenseDescr
+                            );
+                            
+
+                        }
+                        else if( selectedModification == "Date" ) {
+
+                            int newExpense_Year = AnsiConsole.Prompt(
+                                new TextPrompt<int>(
+                                    "Enter an expense year: ")
+                            );
+
+                            int newExpense_Month = AnsiConsole.Prompt(
+                                new TextPrompt<int>(
+                                    "Enter an expense month: ")
+                            );
+
+                            int newExpense_Day = AnsiConsole.Prompt(
+                                new TextPrompt<int>(
+                                    "Enter an expense day: ")
+                            );
+
+                            DateTime newExpenseDate = new DateTime(
+                                newExpense_Year, newExpense_Month,
+                                newExpense_Day
+                            );
+
+                            dataManager.EditExpenseData(
+                                expensesList: dataManager.Expenses,
+                                existingData: selectedExpense,
+                                editParam: selectedModification,
+                                newDateTime: newExpenseDate
+                            );
+
+
+                        }
+                        else if( selectedModification == "Amount" ) {
+
+                            float newExpenseAmount = AnsiConsole.Prompt(
+                                new TextPrompt<float>(
+                                    "Enter a new expense amount: $")
+                            );
+
+                            dataManager.EditExpenseData(
+                                expensesList: dataManager.Expenses,
+                                existingData: selectedExpense,
+                                editParam: selectedModification,
+                                newAmount: newExpenseAmount
+                            );
+
+
+                        }
+                        else if( selectedModification == "Expense Category" ) {
+                            
+                            Category newExpenseCategory = AnsiConsole.Prompt(
+                                new SelectionPrompt<Category>()
+                                .Title("Select a new Category")
+                                .AddChoices(enabledCategories)
+                            );
+
+
+                            int newExpenseCatID = newExpenseCategory.ID;
+
+
+                            dataManager.EditExpenseData(
+                                expensesList: dataManager.Expenses,
+                                existingData: selectedExpense,
+                                editParam: selectedModification,
+                                newCategoryID: newExpenseCatID
+                            );
+
+
+                        }
+                        
+
+
+
+
+
+
+
+
+
+
+                    } while( selectedModification != "Back" );
+
+
                 }
 
 
             } while (expenseMode != "Back");
         } 
-        
+
+
+
+
+
+
         
 
 
@@ -169,6 +328,7 @@ public class ConsoleUI {
 
 
 
+            // Categories Sub-Menu
             do {
 
                 // Print the Categories
@@ -337,9 +497,36 @@ public class ConsoleUI {
 
 
 
-        else if ( mode == "Create / Edit Notifications" ) {
-            Console.WriteLine("Selected Notifications");
 
+
+
+
+
+        else if ( mode == "Create / Edit Notifications" ) {
+            Console.WriteLine(
+                "Selected Notifications" + 
+                "This feature is still under development and is currently slated for v2.0.0" );
+
+        }
+
+
+
+
+
+
+
+
+
+
+        else if ( mode == "Performance") {
+            Console.WriteLine(
+                "Selected Performance" + 
+                "This feature is still under development and is currently slated for v2.0.0"
+            );
+
+
+                        /*
+            // This is just a test to see how one might sort a list of objects
             var unsorted = dataManager.Expenses;
 
             var sorted = unsorted.OrderBy(x => x.Date).ToList();
@@ -347,13 +534,7 @@ public class ConsoleUI {
             foreach( var lineitem in sorted ) {
                 Console.WriteLine(lineitem);
             }
-        }
-
-
-
-
-        else if ( mode == "Performance") {
-            Console.WriteLine("Selected Performance");
+            */
         }
 
 
@@ -363,7 +544,13 @@ public class ConsoleUI {
         else {
             Environment.Exit(0);
         }
-    }
+    
+    
+    } while (mode != "End");    // Topmost-Do While
+    
+    
+    
+    } 
 
 
 
@@ -419,6 +606,8 @@ public class ConsoleUI {
 
         return maxID;
     }
+
+
 
 
 }
