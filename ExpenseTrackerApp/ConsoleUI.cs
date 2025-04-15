@@ -113,7 +113,7 @@ public class ConsoleUI {
                     );
 
 
-                    //Category newExpenseCategory = 
+
                     Category newExpenseCategory = AnsiConsole.Prompt(
                         new SelectionPrompt<Category>()
                         .Title("Select a Category")
@@ -234,8 +234,52 @@ public class ConsoleUI {
 
 
 
+
+
+
+
                 else if( categoryMode == "Edit") {
-                    Console.WriteLine("This feature is slated for v2.0.0");
+                    
+                    /// List all available Categories
+                    foreach( var lineitem in dataManager.Categories) {
+                        Console.WriteLine(lineitem);
+                    }
+
+                    Console.WriteLine(
+                        "--------------------" + 
+                        Environment.NewLine + 
+                        "This feature is slated for v2.0.0"
+                    );
+
+
+                    Category selectedCategory = AnsiConsole.Prompt(
+                        new SelectionPrompt<Category>()
+                            .Title("Select a Category to modify: ")
+                            .AddChoices(dataManager.Categories)
+                    );
+
+
+                    string selectedModification = AnsiConsole.Prompt(
+                        new SelectionPrompt<string>()
+                        .Title("Which would you like to modify?")
+                        .AddChoices( new[] {
+                            "ID",
+                            "Description",
+                            "Date",
+                            "Amount",
+                            "Expense Category",
+                            "Delete"
+                        }
+                        )
+                    );
+
+
+                    if( selectedModification == "Delete") {
+                        dataManager.RemoveCategoryData(selectedCategory);
+                    }
+
+
+
                 }
 
 
@@ -248,6 +292,14 @@ public class ConsoleUI {
 
         else if ( mode == "Create / Edit Notifications" ) {
             Console.WriteLine("Selected Notifications");
+
+            var unsorted = dataManager.Expenses;
+
+            var sorted = unsorted.OrderBy(x => x.Date).ToList();
+
+            foreach( var lineitem in sorted ) {
+                Console.WriteLine(lineitem);
+            }
         }
 
 

@@ -85,6 +85,9 @@ public class DataManager {
 
 
 
+
+
+    /// Expense Helper Functions
     /// Adds new item to list AND calls method to save to local file
     public void AddNewExpenseData(Expense data) {
         this.Expenses.Add(data);
@@ -93,12 +96,52 @@ public class DataManager {
     }
 
 
+    /// Keeps expenses.txt file in sync with current state of Expenses list
+    public void SynchronizeExpenses() {
+        File.Delete("expenses.txt");
 
+        foreach( var expense in Expenses) {
+            this.fileSaverExpense.AppendExpenseData(expense);
+        }
+    }
+
+
+    /// For deleting expenses from Expenses list.
+    /// Runs the synchronizor method to update related file as well.
+    public void RemoveExpenseData(Expense data) {
+        Expenses.Remove(data);
+
+        SynchronizeExpenses();
+    }
+
+
+
+
+
+    /// Category Helper Functions
     /// Adds new item to list AND calls method to save to local file
     public void AddNewCategoryData(Category data) {
         this.Categories.Add(data);
         this.fileSaverCategories.AppendCategoryData(data);
     }
 
+
+    /// Keeps categories.txt file in sync with current state of Categories list
+    public void SynchronizeCategories() {
+        File.Delete("categories.txt");
+
+        foreach( var category in Categories) {
+            this.fileSaverCategories.AppendCategoryData(category);
+        }
+    }
+
+
+    /// For deleting categories from Categories list.
+    /// Runs the synchronizor method to update related file as well.
+    public void RemoveCategoryData(Category data) {
+        Categories.Remove(data);
+
+        SynchronizeCategories();
+    }
 
 }
