@@ -1,0 +1,4 @@
+1, Default Category, true, 0
+2, Category 2, true, 350
+3, Category 3, true, 500
+4, Category 4, false, 1000

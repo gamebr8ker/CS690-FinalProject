@@ -56,8 +56,13 @@ public class Category {
         this.Budget_Amount = Budget_Amount;
     }
 
+
     public override string ToString() {
-        return ( Convert.ToString(this.ID) + "_" + this.Name );
+        return ( Convert.ToString(this.ID) + 
+            "_" + this.Name +
+            " " + Convert.ToString(this.Budget_Amount) + 
+            " " + Convert.ToString(this.Enabled) + " "
+        );
     }
 
 
