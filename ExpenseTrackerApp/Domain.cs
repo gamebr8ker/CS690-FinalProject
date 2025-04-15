@@ -4,13 +4,13 @@ namespace ExpenseTrackerApp;
 public class Expense {
     public int ID { get; }
 
-    public string Description { get; }
+    public string Description { get; set; }
 
-    public DateTime Date { get; }
+    public DateTime Date { get; set; }
 
-    public float Amount { get; }
+    public float Amount { get; set; }
 
-    public int ExpenseCategoryID { get; }
+    public int ExpenseCategoryID { get; set; }
 
 
 
@@ -41,11 +41,11 @@ public class Expense {
 public class Category {
     public int ID { get; }
 
-    public string Name { get; }
+    public string Name { get; set; }
 
-    public bool Enabled { get; }
+    public bool Enabled { get; set; }
 
-    public float Budget_Amount { get; }
+    public float Budget_Amount { get; set; }
 
 
 

@@ -144,4 +144,34 @@ public class DataManager {
         SynchronizeCategories();
     }
 
+
+    public void EditCategoryData(
+        List<Category> categoriesList,  
+        Category existingData, string editParam,  
+        string newName = "", float newBudgetAmount = (float)0.0, 
+        bool newEnabled = true) {
+        
+        // Get index location of item being modified
+        int index = categoriesList.FindIndex(x => x == existingData);
+
+
+        // Update based on user-selected parameter
+        if( editParam == "Name" ) {
+            categoriesList[index].Name = newName;
+            Console.WriteLine(categoriesList[index] + Environment.NewLine);
+        }
+        else if( editParam == "Budget Amount" ) {
+            categoriesList[index].Budget_Amount = newBudgetAmount;
+            Console.WriteLine(categoriesList[index] + Environment.NewLine);
+        }
+        else if( editParam == "Enabled" ) {
+            categoriesList[index].Enabled = newEnabled;
+            Console.WriteLine(categoriesList[index] + Environment.NewLine);
+        }
+        
+
+        // Update categories.txt file        
+        SynchronizeCategories();
+        }
+
 }

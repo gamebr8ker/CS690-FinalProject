@@ -247,8 +247,7 @@ public class ConsoleUI {
 
                     Console.WriteLine(
                         "--------------------" + 
-                        Environment.NewLine + 
-                        "This feature is slated for v2.0.0"
+                        Environment.NewLine
                     );
 
 
@@ -259,24 +258,72 @@ public class ConsoleUI {
                     );
 
 
-                    string selectedModification = AnsiConsole.Prompt(
+
+                    string selectedModification;
+
+                    do {
+                    selectedModification = AnsiConsole.Prompt(
                         new SelectionPrompt<string>()
                         .Title("Which would you like to modify?")
                         .AddChoices( new[] {
-                            "ID",
-                            "Description",
-                            "Date",
-                            "Amount",
-                            "Expense Category",
-                            "Delete"
+                            "Name",
+                            "Budget Amount",
+                            "Enabled",
+                            "Delete",
+                            "Back"
                         }
                         )
                     );
 
 
+                    /// Set the updated value and update the record
                     if( selectedModification == "Delete") {
                         dataManager.RemoveCategoryData(selectedCategory);
+                    } 
+                    else if ( selectedModification == "Name" ) {
+                        
+                        var newCategoryName = AnsiConsole.Prompt(
+                            new TextPrompt<string>("Enter new Category Name: ")
+                        );
+
+                        dataManager.EditCategoryData(
+                            categoriesList: dataManager.Categories, 
+                            existingData: selectedCategory,
+                            editParam: selectedModification,
+                            newName: newCategoryName
+                        );
+
                     }
+                    else if( selectedModification == "Budget Amount") {
+                        
+                        var newCategoryBudget = AnsiConsole.Prompt(
+                            new TextPrompt<float>("Enter a new Budget Amount: ")
+                        );
+
+                        dataManager.EditCategoryData(
+                            categoriesList: dataManager.Categories, 
+                            existingData: selectedCategory,
+                            editParam: selectedModification,
+                            newBudgetAmount: newCategoryBudget
+                        );
+                    }
+                    else if( selectedModification == "Enabled") {
+                        
+                        var newCategoryEnabled = AnsiConsole.Prompt(
+                            new SelectionPrompt<bool>()
+                            .Title("Should this Category be Enabled (true) or Disabled (false)? ")
+                            .AddChoices(new[] {true, false})
+                        );
+
+                        dataManager.EditCategoryData(
+                            categoriesList: dataManager.Categories, 
+                            existingData: selectedCategory,
+                            editParam: selectedModification,
+                            newEnabled: newCategoryEnabled
+                        );
+                    }
+                    } while( selectedModification != "Back");
+
 
 
 

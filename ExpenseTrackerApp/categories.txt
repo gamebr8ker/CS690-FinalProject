@@ -1,4 +1,4 @@
 1, Default Category, True, 0
 2, Category 2, True, 350
 3, Category 3, True, 500
-4, Category 4, False, 1000
+4, Category 4 Mod, True, 1500
