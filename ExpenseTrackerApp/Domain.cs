@@ -28,7 +28,8 @@ public class Expense {
     public override string ToString() {
         return ( Convert.ToString(this.ID) + 
             "_" + this.Description + 
-            " " + this.Date + 
+            " " + this.Date.Month + "/" + this.Date.Day +
+                "/" + this.Date.Year +
             " " + this.Amount + 
             " " + Convert.ToString(this.ExpenseCategoryID)
         );
@@ -49,7 +50,9 @@ public class Category {
 
 
 
-    public Category (int ID, string Name, bool Enabled, float Budget_Amount) {
+    public Category (
+        int ID, string Name, bool Enabled, float Budget_Amount = (float)0
+    ) {
         this.ID = ID;
         this.Name = Name;
         this.Enabled = Enabled;

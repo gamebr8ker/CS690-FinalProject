@@ -12,7 +12,10 @@ public class ConsoleUI {
 
     public ConsoleUI() {
 
-        Console.WriteLine("Here we go...");
+        Console.WriteLine(
+            Environment.NewLine +
+            "Welcome to the Expense Tracker App" +
+            Environment.NewLine);
         dataManager = new DataManager();
     }
 
@@ -20,6 +23,7 @@ public class ConsoleUI {
 
     public void Show() {
 
+        /// Main App Mode
         string mode;
 
         do {
@@ -43,7 +47,6 @@ public class ConsoleUI {
 
         /// Expenses Sub-Menu
         if( mode == "Create / Edit Expenses" ) {
-            Console.WriteLine("Selected Expenses");
 
             string expenseMode;
 
@@ -62,13 +65,37 @@ public class ConsoleUI {
 
 
             do {
+                // List latest 10 expense entries
+                int expensesEndInd = dataManager.Expenses.Count();
+                int expensesStartInd;
+
+                if( expensesEndInd <= 10 ) {
+                    expensesStartInd = 0;
+                } else {
+                    expensesStartInd = expensesEndInd - 10;
+                }
+                
+                Console.WriteLine(
+                    Environment.NewLine +
+                    "Last 10 Expense entries: " +
+                    Environment.NewLine
+                );
+
+
+
                 // Print the Expenses
-                foreach(var lineitem in dataManager.Expenses) {
-                    Console.WriteLine(lineitem);
+                for( 
+                    int index = expensesStartInd; 
+                    index < expensesEndInd;
+                    index++
+                ) {
+                    Console.WriteLine(dataManager.Expenses[index]);
                 }
 
+
                 // Print a break before Prompt
-                Console.WriteLine("--------------------" + 
+                Console.WriteLine(
+                    "--------------------" + 
                     Environment.NewLine
                 );
 
@@ -83,6 +110,9 @@ public class ConsoleUI {
                     }
                     )
                 );
+
+
+
 
 
                 if( expenseMode == "Create") {
@@ -141,9 +171,16 @@ public class ConsoleUI {
                         newExpenseCatID
                     );
 
-                    /*
-                    Console.WriteLine(newExpense + Environment.NewLine);
-                    */
+                    
+                    // Print confirmation message
+                    Console.WriteLine(
+                        Environment.NewLine + 
+                        "New Expense (" + 
+                        newExpense.ID 
+                        + ") added." +
+                        Environment.NewLine
+                    );
+                    
 
 
                     dataManager.AddNewExpenseData(newExpense);
@@ -152,8 +189,9 @@ public class ConsoleUI {
 
 
 
+
+
                 else if( expenseMode == "Edit") {
-                    //Console.WriteLine("This feature is slated for V2.0.0");
 
                     // List existing expenses
                     foreach( var lineitem in dataManager.Expenses ) {
@@ -175,9 +213,20 @@ public class ConsoleUI {
 
 
 
+
+
                     string selectedModification;
 
                     do {
+
+                        Console.WriteLine(
+                            "Selected: " +
+                            selectedExpense + 
+                            Environment.NewLine +
+                            "---------------"
+                        );
+
+
                         selectedModification = AnsiConsole.Prompt(
                             new SelectionPrompt<string>()
                             .Title("Which would you like to modify?")
@@ -198,6 +247,13 @@ public class ConsoleUI {
                         if( selectedModification == "Delete" ) {
                             dataManager.RemoveExpenseData(selectedExpense);
                         
+                            // Print confirmation message
+                            Console.WriteLine(
+                                "Expense (" + 
+                                selectedExpense.ID 
+                                + ") deleted." +
+                                Environment.NewLine
+                            );
                         
                         }
                         else if( selectedModification == "Description" ) {
@@ -274,6 +330,17 @@ public class ConsoleUI {
                             int newExpenseCatID = newExpenseCategory.ID;
 
 
+
+                            // Print confirmation message
+                            Console.WriteLine(
+                                "Expense (" + 
+                                selectedExpense.ID 
+                                + ") modified." +
+                                Environment.NewLine
+                            );
+
+
+
                             dataManager.EditExpenseData(
                                 expensesList: dataManager.Expenses,
                                 existingData: selectedExpense,
@@ -288,12 +355,6 @@ public class ConsoleUI {
 
 
 
-
-
-
-
-
-
                     } while( selectedModification != "Back" );
 
 
@@ -301,7 +362,7 @@ public class ConsoleUI {
 
 
             } while (expenseMode != "Back");
-        } 
+        }    // End Expenses Sub-Menu
 
 
 
@@ -311,11 +372,16 @@ public class ConsoleUI {
         
 
 
-
+        /// Categories Submenu
         else if ( mode == "Create / Edit Categories" ) {
-            Console.WriteLine("Selected Categories");
+            Console.WriteLine(
+                Environment.NewLine + 
+                "Categories List: " +
+                Environment.NewLine
+            );
 
             string categoryMode;
+
 
             // Create the Default / general Category if needed.
             if( dataManager.Categories.Count == 0 ) {
@@ -327,14 +393,29 @@ public class ConsoleUI {
             }
 
 
-
             // Categories Sub-Menu
             do {
 
-                // Print the Categories
+
+                /// Print Categories, via Spectre Console Table
+                var categoryTable = new Table();
+
+                categoryTable.AddColumn("ID");
+                categoryTable.AddColumn("Category Name");
+                categoryTable.AddColumn("Budget Amount");
+                categoryTable.AddColumn("Enabled");
+
                 foreach( var lineitem in dataManager.Categories) {
-                    Console.WriteLine(lineitem);
+                    categoryTable.AddRow(
+                        lineitem.ID.ToString(),
+                        lineitem.Name,
+                        lineitem.Budget_Amount.ToString(),
+                        lineitem.Enabled.ToString()
+                    );
                 }
+
+                AnsiConsole.Write(categoryTable);
+
 
                 // Print a break before Prompt
                 Console.WriteLine("--------------------" + 
@@ -352,6 +433,8 @@ public class ConsoleUI {
                     }
                     )
                 );
+
+
 
 
 
@@ -380,12 +463,16 @@ public class ConsoleUI {
                     );
 
 
-                    /*
+                    // Print confirmation message
                     Console.WriteLine(
-                        Environment.NewLine + newCategory +
+                        Environment.NewLine + 
+                        "New Category (" + 
+                        newCategory.ID 
+                        + ") added." +
                         Environment.NewLine
                     );
-                    */
+
+
 
                     dataManager.AddNewCategoryData(newCategory);
 
@@ -396,20 +483,7 @@ public class ConsoleUI {
 
 
 
-
-
                 else if( categoryMode == "Edit") {
-                    
-                    /// List all available Categories
-                    foreach( var lineitem in dataManager.Categories) {
-                        Console.WriteLine(lineitem);
-                    }
-
-                    Console.WriteLine(
-                        "--------------------" + 
-                        Environment.NewLine
-                    );
-
 
                     Category selectedCategory = AnsiConsole.Prompt(
                         new SelectionPrompt<Category>()
@@ -419,9 +493,19 @@ public class ConsoleUI {
 
 
 
+                    
+
                     string selectedModification;
 
                     do {
+                    Console.WriteLine(
+                        "Selected: " +
+                        selectedCategory + 
+                        Environment.NewLine +
+                        "---------------"
+                    );
+
+
                     selectedModification = AnsiConsole.Prompt(
                         new SelectionPrompt<string>()
                         .Title("Which would you like to modify?")
@@ -436,10 +520,20 @@ public class ConsoleUI {
                     );
 
 
+
                     /// Set the updated value and update the record
                     if( selectedModification == "Delete") {
                         dataManager.RemoveCategoryData(selectedCategory);
-                    } 
+
+                        // Print confirmation message
+                        Console.WriteLine(
+                            "Category (" + 
+                            selectedCategory.ID 
+                            + ") deleted." +
+                            Environment.NewLine
+                        );
+                    }
+
                     else if ( selectedModification == "Name" ) {
                         
                         var newCategoryName = AnsiConsole.Prompt(
@@ -475,23 +569,33 @@ public class ConsoleUI {
                             .AddChoices(new[] {true, false})
                         );
 
-                        dataManager.EditCategoryData(
-                            categoriesList: dataManager.Categories, 
-                            existingData: selectedCategory,
-                            editParam: selectedModification,
-                            newEnabled: newCategoryEnabled
-                        );
+
+                    // Print confirmation message
+                    Console.WriteLine(
+                        "Category (" + 
+                        selectedCategory.ID +
+                        ") modified." +
+                        Environment.NewLine
+                    );
+
+
+                    dataManager.EditCategoryData(
+                        categoriesList: dataManager.Categories, 
+                        existingData: selectedCategory,
+                        editParam: selectedModification,
+                        newEnabled: newCategoryEnabled
+                    );
+
+
                     }
                     } while( selectedModification != "Back");
-
-
 
 
                 }
 
 
             } while (categoryMode != "Back");
-        }
+        }    // End Categories Sub-Menu
 
 
 
@@ -502,6 +606,7 @@ public class ConsoleUI {
 
 
 
+        /// Notifications Sub-Menu
         else if ( mode == "Create / Edit Notifications" ) {
             Console.WriteLine(
                 "Selected Notifications" + 
@@ -518,12 +623,8 @@ public class ConsoleUI {
 
 
 
+        /// Performance Sub-Menu
         else if ( mode == "Performance") {
-            Console.WriteLine(
-                "Selected Performance" + 
-                "This feature is still under development and is currently slated for v2.0.0"
-            );
-
 
             /*
             // This is just a test to see how one might sort a list of objects
@@ -536,22 +637,13 @@ public class ConsoleUI {
             }
             */
 
-            //Dictionary< String, List<float>>  mydict = 
-            //    new Dictionary< String, List<float> >();
-
+            // Create the underlying data structure for Spectre Table
             SortedDictionary<String, List<float>> performanceDict = new SortedDictionary<String, List<float>>();
 
 
             var sortedExpenses = dataManager.Expenses.OrderBy( x => x.Date).ToList();
 
             foreach( Expense lineitem in sortedExpenses ) {
-                // Console.WriteLine(
-                //     lineitem.Date.Year +
-                //     "-" + 
-                //     lineitem.Date.Month
-                // );
-
-                
 
                 // Collect lineitem values
                 int dictYear = lineitem.Date.Year;
@@ -566,6 +658,7 @@ public class ConsoleUI {
                 float expenseAmount = lineitem.Amount;
 
 
+
                 // Look up the associated Category Name, Budget for the expense
                 foreach(Category categoryItem in dataManager.Categories) {
                     if(categoryItem.ID == expenseCategoryID) {
@@ -575,10 +668,10 @@ public class ConsoleUI {
                 }
 
 
+
                 // Create dictionary key: String
                 string dictKeyName = 
                     dictDateTime.ToString("MM-yyyy") + "_" + relatedCategoryName;
-
 
 
 
@@ -595,47 +688,50 @@ public class ConsoleUI {
                 performanceDict[dictKeyName][1] += expenseAmount;
 
 
-
-
-                // Prepare Performance Data for Spectre Table
-                //List<string> performanceList = new List<string>();
-
             }
 
 
-            // Spectre Console Table
+
+
+
+            // Generate Spectre Console Table
             var performanceTable = new Table();
 
+
             // Add columns to Spectre Table
-            performanceTable.AddColumn("Date_Category");
+            //performanceTable.AddColumn("Date_Category");
+            performanceTable.AddColumn("Date");
+            performanceTable.AddColumn("Category");
             performanceTable.AddColumn("Budget Amount");
             performanceTable.AddColumn("Expense Sum");
+
 
             // Add Rows to Spectre Table
             foreach( KeyValuePair<String, List<float>> keypair in performanceDict) {
 
+                string[] subs = keypair.Key.Split("_");
+
                 // row values appear to need to be Strings
                 performanceTable.AddRow(
-                    keypair.Key,
+                    //keypair.Key,
+                    subs[0],
+                    subs[1],
                     keypair.Value[0].ToString(),
                     keypair.Value[1].ToString()
                 );
             }
 
+
             // Render the Spectre Table to Console
+            Console.WriteLine(
+                Environment.NewLine +
+                "Your current monthly summary:" +
+                Environment.NewLine
+            );
             AnsiConsole.Write(performanceTable);
 
-            // foreach(KeyValuePair<String, List<float>> keypair in             
-            //     performanceDict) {
-            //         //string listVals;
 
-            //         //foreach(var elem in keypair.Value ) {
-            //         //    listVals.Add(
-            //         Console.WriteLine(
-            //             keypair.Key + "-" + 
-            //             keypair.Value[0] + "_" + keypair.Value[1]);
-            // }
-        }
+        }    // End Performance Sub-Menu
 
 
 
@@ -650,40 +746,37 @@ public class ConsoleUI {
     
     
     
-    } 
+    }   // End Show() Method
+
 
 
 
 
     /// Get the max ID value from an input list
+    /// This accounts properly for deletions from Expenses File / Index.
     public static int FindMaxID_Expense(List<Expense> someList) {
-
-        /*
-        // Original Idea (value-based)
-        int maxID = 0;
-
-
-        foreach(var lineitem in someList) {
-            var splitted = lineitem.Split(
-                ", ", StringSplitOptions.RemoveEmptyEntries
-            );
-
-            line_id = splitted[0];
-
-            if( line_id > maxID) {
-                maxID = line_id;
-            }
-        */
 
         int maxID;
 
-        if( someList.Count > 0 ) {
-            maxID = someList.Count;
-        } 
-        
+        List<int> IDList = new List<int>();
+
+
+        if( someList.Count > 0) {
+
+            // Create list of Expense IDs
+            foreach( Expense lineitem in someList ) {
+                IDList.Add(lineitem.ID);
+            }
+            
+            // Get Last value (greatest ID)
+            IDList.Sort();
+            maxID = IDList.Last();
+
+        }
         else {
             maxID = 0;
         }
+
 
         return maxID;
 
@@ -696,13 +789,25 @@ public class ConsoleUI {
         
         int maxID;
 
-        if( someList.Count > 0 ) {
-            maxID = someList.Count;
-        } 
-        
+        List<int> IDList = new List<int>();
+
+
+        if( someList.Count > 0) {
+
+            // Create list of Category IDs
+            foreach( Category lineitem in someList ) {
+                IDList.Add(lineitem.ID);
+            }
+            
+            // Get Last value (greatest ID)
+            IDList.Sort();
+            maxID = IDList.Last();
+
+        }
         else {
             maxID = 0;
         }
+
 
         return maxID;
     }

@@ -2,3 +2,5 @@
 2, Category 2, True, 350
 3, Category 3, True, 500
 4, Category 4 Mod, True, 1500
+5, Capital Expenditure, True, 300
+6, HOA, True, 150
