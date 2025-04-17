@@ -525,7 +525,7 @@ public class ConsoleUI {
             );
 
 
-                        /*
+            /*
             // This is just a test to see how one might sort a list of objects
             var unsorted = dataManager.Expenses;
 
@@ -535,6 +535,106 @@ public class ConsoleUI {
                 Console.WriteLine(lineitem);
             }
             */
+
+            //Dictionary< String, List<float>>  mydict = 
+            //    new Dictionary< String, List<float> >();
+
+            SortedDictionary<String, List<float>> performanceDict = new SortedDictionary<String, List<float>>();
+
+
+            var sortedExpenses = dataManager.Expenses.OrderBy( x => x.Date).ToList();
+
+            foreach( Expense lineitem in sortedExpenses ) {
+                // Console.WriteLine(
+                //     lineitem.Date.Year +
+                //     "-" + 
+                //     lineitem.Date.Month
+                // );
+
+                
+
+                // Collect lineitem values
+                int dictYear = lineitem.Date.Year;
+                int dictMonth = lineitem.Date.Month;
+                int dictDay = 1;
+                DateTime dictDateTime = new DateTime(dictYear, dictMonth, dictDay);
+
+
+                int expenseCategoryID = lineitem.ExpenseCategoryID;
+                string relatedCategoryName = "";
+                float budgetAmount = (float)0;
+                float expenseAmount = lineitem.Amount;
+
+
+                // Look up the associated Category Name, Budget for the expense
+                foreach(Category categoryItem in dataManager.Categories) {
+                    if(categoryItem.ID == expenseCategoryID) {
+                        relatedCategoryName = categoryItem.Name;
+                        budgetAmount = categoryItem.Budget_Amount;
+                    }
+                }
+
+
+                // Create dictionary key: String
+                string dictKeyName = 
+                    dictDateTime.ToString("MM-yyyy") + "_" + relatedCategoryName;
+
+
+
+
+                // Add new key to Dict Keys if not present
+                if( !performanceDict.ContainsKey(dictKeyName) ) {
+                    performanceDict[dictKeyName] = new List<float>();
+                    performanceDict[dictKeyName].Add( (float)budgetAmount );  // Budget
+                    performanceDict[dictKeyName].Add( (float)0 );    // Expenses
+                }
+
+
+
+                // Add Expense lineitem Amount to existing dict entry
+                performanceDict[dictKeyName][1] += expenseAmount;
+
+
+
+
+                // Prepare Performance Data for Spectre Table
+                //List<string> performanceList = new List<string>();
+
+            }
+
+
+            // Spectre Console Table
+            var performanceTable = new Table();
+
+            // Add columns to Spectre Table
+            performanceTable.AddColumn("Date_Category");
+            performanceTable.AddColumn("Budget Amount");
+            performanceTable.AddColumn("Expense Sum");
+
+            // Add Rows to Spectre Table
+            foreach( KeyValuePair<String, List<float>> keypair in performanceDict) {
+
+                // row values appear to need to be Strings
+                performanceTable.AddRow(
+                    keypair.Key,
+                    keypair.Value[0].ToString(),
+                    keypair.Value[1].ToString()
+                );
+            }
+
+            // Render the Spectre Table to Console
+            AnsiConsole.Write(performanceTable);
+
+            // foreach(KeyValuePair<String, List<float>> keypair in             
+            //     performanceDict) {
+            //         //string listVals;
+
+            //         //foreach(var elem in keypair.Value ) {
+            //         //    listVals.Add(
+            //         Console.WriteLine(
+            //             keypair.Key + "-" + 
+            //             keypair.Value[0] + "_" + keypair.Value[1]);
+            // }
         }
 
 
