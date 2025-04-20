@@ -752,6 +752,11 @@ public class ConsoleUI {
 
 
 
+
+
+
+
+
     /// Get the max ID value from an input list
     /// This accounts properly for deletions from Expenses File / Index.
     public static int FindMaxID_Expense(List<Expense> someList) {
@@ -781,6 +786,8 @@ public class ConsoleUI {
         return maxID;
 
         } 
+
+
 
 
 
