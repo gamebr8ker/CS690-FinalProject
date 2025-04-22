@@ -1,0 +1,2 @@
+1, Rent, 3, 1500, True
+2, Electric, 25, 135, True

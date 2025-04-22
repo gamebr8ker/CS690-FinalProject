@@ -43,6 +43,26 @@ public class FileSaver {
 
 
 
-    //
+    public void AppendNotificationBillData(Notification_Bill data) {
+        File.AppendAllText(
+            this.fileName,
+            data.ID + ", " + data.Description + ", " +
+            data.Due_Day + ", " + data.Amount + ", " +
+            data.Enabled + 
+            Environment.NewLine
+        );
+    }
+
+
+
+    public void AppendNotificationBudgetData(Notification_Budget data) {
+        File.AppendAllText(
+            this.fileName,
+            data.ID + ", " + data.Threshold_Day + ", " +
+            data.Tolerance_Percent + ", " + data.ExpenseCategoryID + ", " +
+            data.Enabled + 
+            Environment.NewLine
+        );
+    }
 }
 

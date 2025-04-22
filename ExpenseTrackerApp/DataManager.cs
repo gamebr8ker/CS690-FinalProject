@@ -6,12 +6,16 @@ public class DataManager {
 
     FileSaver fileSaverExpense;
     FileSaver fileSaverCategories;
-    FileSaver fileSaverNotifications_Bill;
-    FileSaver fileSaverNotitifcations_Budget;
+    FileSaver fileSaverNotification_Bills;
+    FileSaver fileSaverNotification_Budgets;
 
     public List<Expense> Expenses { get; } // Change back to Expense type?
     
     public List<Category> Categories { get; }
+
+    public List<Notification_Bill> Notification_Bills { get; }
+
+    public List<Notification_Budget> Notification_Budgets { get; }
 
 
         
@@ -19,8 +23,8 @@ public class DataManager {
 
         fileSaverExpense = new FileSaver("expenses.txt");
         fileSaverCategories = new FileSaver("categories.txt");
-        fileSaverNotifications_Bill = new FileSaver("notifications_bill.txt");
-        fileSaverNotitifcations_Budget = new FileSaver("notifications_budget.txt");
+        fileSaverNotification_Bills = new FileSaver("notifications_bill.txt");
+        fileSaverNotification_Budgets = new FileSaver("notifications_budget.txt");
 
 
 
@@ -79,6 +83,72 @@ public class DataManager {
 
             }
         }
+
+
+
+
+
+        // Read in existing Notification_Bills to List
+        Notification_Bills = new List<Notification_Bill>();
+
+        if( File.Exists("notifications_bill.txt") ) {
+            
+            var nBillsContent = File.ReadAllLines("notifications_bill.txt");
+
+            foreach( var nBillEntry in nBillsContent) {
+
+                var splitted = nBillEntry.Split(", ",
+                    StringSplitOptions.RemoveEmptyEntries);
+
+                var nBillID = int.Parse(splitted[0]);
+                var nBillDescription = splitted[1];
+                var nBillDue_Day = int.Parse(splitted[2]);
+                var nBillAmount = float.Parse(splitted[3]);
+                var nBillEnabled = bool.Parse(splitted[4]);
+
+                Notification_Bills.Add( new Notification_Bill(
+                    nBillID, nBillDescription, nBillDue_Day,
+                    nBillAmount, nBillEnabled)
+                );
+            }
+
+        }
+
+
+
+
+
+        // Read in existing Notification_Budgets to List
+        Notification_Budgets = new List<Notification_Budget>();
+
+        if( File.Exists("notifications_budget.txt") ) {
+
+            var nBudgetsContent = File.ReadAllLines(
+                "notifications_budget.txt"
+            );
+
+            foreach( var nBudgetEntry in nBudgetsContent ) {
+
+                var splitted = nBudgetEntry.Split(", ",
+                    StringSplitOptions.RemoveEmptyEntries);
+
+                var nBudgetID = int.Parse(splitted[0]);
+                var nBudgetThresholdDay = int.Parse(splitted[1]);
+                var nBudgetTolerancePercent = float.Parse(splitted[2]);
+                var nBudgetExpenseCategoryID = int.Parse(splitted[3]);
+                var nBudgetEnabled = bool.Parse(splitted[4]);
+
+                Notification_Budgets.Add( new Notification_Budget(
+                    nBudgetID, nBudgetThresholdDay, nBudgetTolerancePercent,
+                    nBudgetExpenseCategoryID, nBudgetEnabled)
+                );
+
+            }
+
+        }
+
+
+
 
 
     }
@@ -149,6 +219,8 @@ public class DataManager {
 
 
 
+
+
     /// Category Helper Functions
     /// Adds new item to list AND calls method to save to local file
     public void AddNewCategoryData(Category data) {
@@ -207,4 +279,149 @@ public class DataManager {
         SynchronizeCategories();
         }
 
+
+
+
+
+    /// Notification_Bill Helper Functions
+    // Adds new item to list AND calls method to save to local file
+    public void AddNewNBillData(Notification_Bill data) {
+        this.Notification_Bills.Add(data);
+        this.fileSaverNotification_Bills.AppendNotificationBillData(data);
+
+    }
+
+
+    // Keeps <file>.txt in sync with current state of NBills list
+    public void SynchronizeNotificationBills() {
+        File.Delete("notifications_bill.txt");
+
+        foreach( var nBill in Notification_Bills) {
+            this.fileSaverNotification_Bills.AppendNotificationBillData(nBill);
+        }
+    }
+
+
+    // For deleting NBills from Notification_Bills list.
+    // Runs the synchronizor method to update related file as well
+    public void RemoveNotificationBillsData(Notification_Bill data) {
+        Notification_Bills.Remove(data);
+
+        SynchronizeNotificationBills();
+
+    }
+
+
+
+    public void EditNotificationBillData(
+        List<Notification_Bill> nBillsList,
+        Notification_Bill existingData,
+        string editParam,
+        string newDescr = "",
+        int newDueDay = 1,
+        float newAmount = (float)0.0,
+        bool newEnabled = true) {
+
+            // Get index location of item being modified
+            int index = nBillsList.FindIndex(x => x == existingData);
+
+            // Update based on user-selected parameter
+            if( editParam == "Description") {
+                nBillsList[index].Description = newDescr;
+            }
+            else if( editParam == "Due Day") {
+                nBillsList[index].Due_Day = newDueDay;
+            }
+            else if( editParam == "Amount") {
+                nBillsList[index].Amount = newAmount;
+            }
+            else if( editParam == "Enabled") {
+                nBillsList[index].Enabled = newEnabled;
+            }
+
+            Console.WriteLine(nBillsList[index] + Environment.NewLine);
+
+
+            // Update corresponding <file>.txt
+            SynchronizeNotificationBills();
+
+        }
+
+    
+
+
+
+    /// Notification_Budget Helper Functions
+    // Adds new item to list AND calls method to save to local file
+    public void AddNewNBudgetData(Notification_Budget data) {
+        this.Notification_Budgets.Add(data);
+        this.fileSaverNotification_Budgets.AppendNotificationBudgetData(data);
+
+    }
+
+
+
+    // Keeps <file>.txt in sync with current state of NBudgets list
+    public void SynchronizeNotificationBudgets() {
+        File.Delete("notifications_budget.txt");
+
+        foreach( var nBudget in Notification_Budgets) {
+            this.fileSaverNotification_Budgets.AppendNotificationBudgetData(nBudget);
+        }
+
+    }
+
+
+
+    // For deleting NBudgets from Notification_Budgets list
+    // Runs the synchronizor method to update related file as well
+    public void RemoveNotificationBudgetsData(Notification_Budget data) {
+        Notification_Budgets.Remove(data);
+
+        SynchronizeNotificationBudgets();
+
+    }
+
+
+
+    // 
+    public void EditNotificationBudgetsData(
+        List<Notification_Budget> nBudgetsList,
+        Notification_Budget existingData,
+        string editParam,
+        int newThresholdDay = 1,
+        float newTolerancePercent = (float)0.0,
+        int newExpenseCategoryId = 1,
+        bool newEnabled = true) {
+
+            // Get index location of item being modified
+            int index = nBudgetsList.FindIndex(x => x == existingData);
+
+            // Update based on user-selected parameter
+            if( editParam == "Threshold Day" ) {
+                nBudgetsList[index].Threshold_Day = newThresholdDay;
+            }
+            else if( editParam == "Tolerance Percent" ) {
+                nBudgetsList[index].Tolerance_Percent = newTolerancePercent;
+            }
+            else if( editParam == "Expense Category" ) {
+                nBudgetsList[index].ExpenseCategoryID = newExpenseCategoryId;
+            }
+            else if( editParam == "Enabled" ) {
+                nBudgetsList[index].Enabled = newEnabled;
+            }
+
+
+            Console.WriteLine(nBudgetsList[index] + Environment.NewLine);
+
+
+            // Update corresponding <file>.txt
+            SynchronizeNotificationBudgets();
+
+        }
+
+
+
 }
+
+
