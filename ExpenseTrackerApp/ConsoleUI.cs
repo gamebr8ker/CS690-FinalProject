@@ -16,6 +16,7 @@ public class ConsoleUI {
             Environment.NewLine +
             "Expense Tracker App" +
             Environment.NewLine);
+        
         dataManager = new DataManager();
     }
 
@@ -28,19 +29,26 @@ public class ConsoleUI {
 
 
 
-        // Display upcoming Bill Notifications
+        // Display upcoming Notifications
+        // Bill Notifications
         Console.WriteLine("Notifications");
-        Console.WriteLine("Upcoming Bills:" + Environment.NewLine);
+        
         List<Notification_Bill> disp = DisplayNotificationBills(
             dataManager.Notification_Bills);
 
-        foreach( var entry in disp) {
-            Console.WriteLine(entry);
-        }
+
+
+        // Budget Notifications
+        DisplayNotificationBudgets( 
+            dataManager.Notification_Budgets,
+            dataManager.Expenses,
+            dataManager.Categories
+        );
 
         Console.WriteLine(
             Environment.NewLine +
             "---------------");
+
 
 
 
@@ -939,18 +947,6 @@ public class ConsoleUI {
 
             else if( budgetModeSub == "Edit") {
 
-                List<Notification_Budget_Aggregate> testList = 
-                    DisplayNotificationBudgets2( 
-                        dataManager.Notification_Budgets,
-                        dataManager.Expenses,
-                        dataManager.Categories
-                    );
-                
-                foreach( var lineitem in testList ) {
-                    Console.WriteLine(lineitem);
-                }
-
-
                 Notification_Budget selectedNBudget = AnsiConsole.Prompt(
                     new SelectionPrompt<Notification_Budget>()
                     .Title("Select a Budget Notification to modfiy: ")
@@ -1338,6 +1334,31 @@ public class ConsoleUI {
                     upcomingNBills.Add(entry);
                 }
             }
+
+
+            // Generate Spectre Console Table
+            var billNotificationTable = new Table();
+
+            // Add Columns to Spectre Table
+            billNotificationTable.AddColumn("Description");
+            billNotificationTable.AddColumn("Amount");
+            billNotificationTable.AddColumn("Due Day");
+
+            // Add rows to Spectre Table
+            foreach( var lineitem in upcomingNBills ) {
+                billNotificationTable.AddRow(
+                    lineitem.Description,
+                    lineitem.Amount.ToString(),
+                    lineitem.Due_Day.ToString()
+                );
+            }
+
+            // Render Spectre Table to Console
+            Console.WriteLine(
+                Environment.NewLine + 
+                "Current Bill Notifications: "
+            );
+            AnsiConsole.Write(billNotificationTable);
             
 
 
@@ -1379,99 +1400,6 @@ public class ConsoleUI {
 
 
 
-    /*
-    public static List<Notification_Budget_Aggregate>           DisplayNotificationBudgets(
-        List<Notification_Budget> nBudgetList,
-        List<Expense> expensesList,
-        List<Category> categoriesList) {
-
-
-            // Create container for upcoming Bill Notifications
-            List< Notification_Budget_Aggregate> DisplayNBudgets = new List<Notification_Budget_Aggregate>();
-
-            Dictionary<int, float> BudgetExpenseSums = new Dictionary<int, float>();
-
-            
-            // Create each entry for upcoming Bill Notifications
-            // This SHOULD keep both List and Dict limited to 1 entry per
-            // CategoryID
-            foreach( Expense lineitem in expensesList ) {
-
-                if( BudgetExpenseSums.ContainsKey(lineitem.ID) ) {
-                    // Update running sum in Dict
-                    BudgetExpenseSums[lineitem.ID] += lineitem.Amount;
-
-                    // Update the expense sum in list
-                    int index = DisplayNBudgets.FindIndex(
-                        x => x.expenseCategoryID == lineitem.ExpenseCategoryID);
-                    
-                    DisplayNBudgets[index].expenseAmountSum = 
-                    BudgetExpenseSums[lineitem.ID];
-                }
-
-                else if( !BudgetExpenseSums.ContainsKey(lineitem.ID) ) {
-                    // Here no related category data has been collected
-                    // in Dict or list. Create / collect it.
-
-                    // Create entry in Dict
-                    BudgetExpenseSums[lineitem.ID] = (float)0;
-                    BudgetExpenseSums[lineitem.ID] += lineitem.Amount;
-
-
-                    // Create entry in List
-                    // Get Expense Info
-                    int expenseCategoryID = lineitem.ExpenseCategoryID;
-                    string relatedCategoryName = "";
-                    float budgetAmount = (float)0;
-                    float expenseAmount = lineitem.Amount;
-                    int threshold_day = 0;
-                    float tolerance_pct = (float)0;
-                    bool notificationEnabled = true;
-
-                    // Get associated Category Name, Budget for expenses
-                    foreach(Category categoryItem in categoriesList) {
-                        if( categoryItem.ID == expenseCategoryID ) {
-                            relatedCategoryName = categoryItem.Name;
-                            budgetAmount = categoryItem.Budget_Amount;
-                        }
-                    }
-
-                    // Get associated Notification_Budget Thresh_Day, Tol_Pct, Enabled
-                    foreach(Notification_Budget budgetItem in nBudgetList) {
-                        if( budgetItem.ID == expenseCategoryID ) {
-                            threshold_day = budgetItem.Threshold_Day;
-                            tolerance_pct = budgetItem.Tolerance_Percent;
-                            notificationEnabled = budgetItem.Enabled;
-                        }
-                    }
-
-
-                    //string dictKeyName = expenseCategoryID + "_" +
-                        //relatedCategoryName;
-
-                    DisplayNBudgets.Add(new Notification_Budget_Aggregate(
-                        expenseCategoryID: expenseCategoryID,
-                        expenseCategoryName: relatedCategoryName,
-                        budgetAmount: budgetAmount,
-                        expenseAmountSum: expenseAmount,
-                        thresholdDay: threshold_day,
-                        tolerancePercent: tolerance_pct,
-                        notificationEnabled: notificationEnabled
-                        )
-                    );
-
-
-                }
-
-            } // End foreach
-
-
-
-            return DisplayNBudgets;
-
-    }
-    */
-
 
 
 /// <summary>
@@ -1483,7 +1411,10 @@ public class ConsoleUI {
 /// <param name="expensesList"></param>
 /// <param name="categoriesList"></param>
 /// <returns></returns>
-    public static List<Notification_Budget_Aggregate> DisplayNotificationBudgets2(
+    public static 
+    //List<Notification_Budget_Aggregate> 
+    void
+    DisplayNotificationBudgets(
             List<Notification_Budget> nBudgetList,
             List<Expense> expensesList,
             List<Category> categoriesList) {
@@ -1494,23 +1425,47 @@ public class ConsoleUI {
         List<Notification_Budget_Aggregate> budgetDisplayList = new 
         List<Notification_Budget_Aggregate>();
 
+        List<Notification_Budget_Aggregate> budgetDisplayList_tripped = new
+        List<Notification_Budget_Aggregate>();
+
+
+
+        // Set up DateTime comparison values
+        DateTime currentDT = DateTime.Now;
+        int currentDT_year = currentDT.Year;
+        int currentDT_month = currentDT.Month;
+        int currentDT_day = currentDT.Day;
+
+
 
         // Get unique CategoryID with sum of Expense Amount
         foreach( var expenseItem in expensesList ) {
-            int currentCategoryID = expenseItem.ExpenseCategoryID;
-            float currentExpenseAmount = expenseItem.Amount;
 
-            if( categoryExpenseSums.ContainsKey(currentCategoryID) ) {
-                categoryExpenseSums[currentCategoryID] += currentExpenseAmount;
+            // Ensure that the expenseItem is ONLY in current Month, Year
+            if( 
+                expenseItem.Date.Year == currentDT_year &&
+                expenseItem.Date.Month == currentDT_month 
+            ) 
+            { // True
+                int currentCategoryID = expenseItem.ExpenseCategoryID;
+                float currentExpenseAmount = expenseItem.Amount;
+
+                if( categoryExpenseSums.ContainsKey(currentCategoryID) ) {
+                    categoryExpenseSums[currentCategoryID] += currentExpenseAmount;
+                }
+                else {
+                    categoryExpenseSums[currentCategoryID] = (float)0;
+                    categoryExpenseSums[currentCategoryID] += currentExpenseAmount;
+                }
             }
-            else {
-                categoryExpenseSums[currentCategoryID] = (float)0;
-                categoryExpenseSums[currentCategoryID] += currentExpenseAmount;
-            }
+            //else {} // Don't consider any expenseItem NOT IN current Month, Yr
         
         }
 
+
+
         // Join Expense amount with other Categroy, Budget data
+        // Only if a budget notification exists for the Category
         foreach(KeyValuePair<int, float> aggItem in       categoryExpenseSums ) {
 
             if( nBudgetList.Find(x => x.ExpenseCategoryID == aggItem.Key) is null) {
@@ -1549,13 +1504,61 @@ public class ConsoleUI {
             }
 
         }
-            
+        
 
 
-        return budgetDisplayList;
+        // Check the conditions for displaying a Budget Notification
+        foreach( var lineitem in budgetDisplayList ) {
+            float expenseAmountSum = lineitem.expenseAmountSum;
+            float budgetAmount = lineitem.budgetAmount;
+            float expenseDivBudget = (expenseAmountSum / budgetAmount) * 100;
+
+            if( 
+                lineitem.notificationEnabled == true &&
+                expenseDivBudget >= lineitem.tolerancePercent &&
+                currentDT_day <= lineitem.thresholdDay
+            )
+            {
+                budgetDisplayList_tripped.Add(lineitem);
+            }
+            else {} // If criteria not met, don't add to _tripped list
+
+        }
 
 
 
+        // Generate Spectre Console Table
+        var budgetNotificationTable = new Table();
+
+        // Add columns to Spectre Table
+        budgetNotificationTable.AddColumn("Category ID");
+        budgetNotificationTable.AddColumn("Category");
+        budgetNotificationTable.AddColumn("Expense Sum");
+        budgetNotificationTable.AddColumn("Budget");
+        
+        // Add rows to Spectre Table
+        foreach( var lineitem in budgetDisplayList_tripped ) {
+            budgetNotificationTable.AddRow(
+                lineitem.expenseCategoryID.ToString(),
+                lineitem.expenseCategoryName,
+                lineitem.expenseAmountSum.ToString(),
+                lineitem.budgetAmount.ToString()
+            );
+
+        }
+
+
+        
+        // Render Spectre Table to Console
+        Console.WriteLine(
+            Environment.NewLine + 
+            "Current Budget Notifications: "
+        );
+        AnsiConsole.Write(budgetNotificationTable);
+
+
+
+        //return budgetDisplayList_tripped;
     }
 
 
